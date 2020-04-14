@@ -4,8 +4,8 @@ from GroceryTracking import app, db, bcrypt
 from flask_login import login_user, current_user, logout_user, login_required
 from GroceryTracking.models import List, User
 from GroceryTracking.forms import LogInForm, RegistrationForm
-from GroceryTracking.helperFunctions import nextHighestUserId, recreateDatabase
-
+from GroceryTracking.helperFunctions import nextHighestUserId
+from GroceryTracking.testFunctions import recreateDatabaseBlank, recreateDatabaseTestFill
 
 @app.route("/MainMenu")
 def mainMenuRoute():
@@ -34,6 +34,8 @@ def registerRoute():
 @app.route("/")
 @app.route("/login", methods=['GET', 'POST'])
 def login():
+    ##Tests by adding fake users, lists, items
+    recreateDatabaseTestFill()
     if current_user.is_authenticated:
         return redirect(url_for('mainMenuRoute'))
     form = LogInForm()
@@ -53,4 +55,7 @@ def logout():
     return redirect(url_for('login'))
 
 
-
+@app.route("/userLists")
+def userLists():
+    lists = List.query.filter_by(user_id = current_user.id)
+    return render_template('YourLists.html', lists=lists)
