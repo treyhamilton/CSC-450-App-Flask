@@ -38,8 +38,8 @@ def recreateDatabaseTestFill():
 
     testItem2Upc = "022000005120"
     testItem2Name = "PEPPERMINT COBALT SUGARFREE GUM"
-    testItem2 = Item(upc=testItem1Upc, name=testItem1Name)
-    db.session.add(testItem1)
+    testItem2 = Item(upc=testItem2Upc, name=testItem2Name)
+    db.session.add(testItem2)
     db.session.commit()
 
     #fill the lists with the test items

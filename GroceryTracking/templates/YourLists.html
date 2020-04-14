@@ -8,7 +8,7 @@
         {% for list in lists %}
         <div class="row">
             <div class="col-6 form-group">
-                <a class="btn btn-primary" type="button" href="#" style="width:70%"><font size="6">{{ list.name }}</font></a>
+                <a class="btn btn-primary" type="button" href="{{ url_for('listContents', listId = list.id) }}" style="width:70%"><font size="6">{{ list.name }}</font></a>
             </div>
         </div>
             
