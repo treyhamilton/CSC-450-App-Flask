@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+{% block content %}
+
+    <div class="text-center">
+        <h1>
+            Your Lists
+        </h1>
+        {% for list in lists %}
+        <div class="row">
+            <div class="col-6 form-group">
+                <a class="btn btn-primary" type="button" href="#" style="width:70%"><font size="6">{{ list.name }}</font></a>
+            </div>
+        </div>
+            
+        {% endfor %}
+    </div>
+
+{% endblock content %}
