@@ -41,7 +41,7 @@ class Content(db.Model):
 
 class Item(db.Model):
     __tablename__ = "item"
-    upc = db.Column(db.Integer, primary_key=True, nullable=False)
+    upc = db.Column(db.String, primary_key=True, nullable=False)
     name = db.Column(db.String, nullable=False)
 
     item_info = db.relationship("Content", backref="item")
