@@ -3,7 +3,7 @@ from sqlalchemy import func, and_
 from GroceryTracking import app, db, bcrypt
 from flask_login import login_user, current_user, logout_user, login_required
 from GroceryTracking.models import List, User, Item, Content
-from GroceryTracking.forms import LogInForm, RegistrationForm
+from GroceryTracking.forms import LogInForm, RegistrationForm, EditAccountForm
 from GroceryTracking.helperFunctions import nextHighestUserId
 from GroceryTracking.testFunctions import recreateDatabaseBlank, recreateDatabaseTestFill
 
@@ -73,4 +73,35 @@ def listContents(listId):
 @app.route("/settings")
 def settings():
     return render_template('Settings.html')
+
+@app.route("/settings/editAccount", methods=['GET', 'POST'])
+@login_required
+def editAccount():
+    user = User.query.filter_by(id=current_user.id).first()
+
+    form = EditAccountForm()
+    if request.method == 'POST':
+        user.username = form.username.data
+        user.email = form.email.data
+        try:
+            form.validate_email(user.email)
+            try:
+                form.validate_email(user.email)
+                db.session.commit()
+                flash('Your account has been updated.', 'success')
+                return redirect(url_for('editAccount'))
+            except:
+                db.session.rollback()
+                flash('Your changes failed to save.', 'fail')
+        except:
+            flash('That email is already in use. Please try another.', 'fail')
+        return redirect(url_for('editAccount'))
+    
+    elif request.method == 'GET':
+        form.username.data = user.username
+        form.email.data = user.email
+        
+    
+    return render_template('EditAccount.html', title='Edit Account', form=form)
+
 
