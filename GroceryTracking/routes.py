@@ -3,11 +3,11 @@ from sqlalchemy import func, and_
 from GroceryTracking import app, db, bcrypt
 from flask_login import login_user, current_user, logout_user, login_required
 from GroceryTracking.models import List, User, Item, Content
-from GroceryTracking.forms import LogInForm, RegistrationForm
+from GroceryTracking.forms import LogInForm, RegistrationForm, EditAccountForm
 from GroceryTracking.helperFunctions import nextHighestUserId
 from GroceryTracking.testFunctions import recreateDatabaseBlank, recreateDatabaseTestFill
 
-@app.route("/")
+
 @app.route("/MainMenu")
 @login_required
 def mainMenuRoute():
@@ -31,12 +31,13 @@ def registerRoute():
             db.session.rollback()
             flash('Your account has not been created.', 'fail')
         return redirect(url_for('login'))
-    return render_template('register.html', title='Register', form=form)
+    return render_template('Register.html', title='Register', form=form)
 
+@app.route("/")
 @app.route("/login", methods=['GET', 'POST'])
 def login():
-    ##Tests by adding fake users, lists, items
-    recreateDatabaseTestFill()
+    ##Tests by adding fake users, lists, items. Comment out and save for testing purposes after turning server on.
+    #recreateDatabaseTestFill()
     if current_user.is_authenticated:
         return redirect(url_for('mainMenuRoute'))
     form = LogInForm()
@@ -48,7 +49,7 @@ def login():
             return redirect(next_page) if next_page else redirect(url_for('mainMenuRoute'))
         else:
             flash('Login Unsuccessful. Please check email and password', 'danger')
-    return render_template('login.html', title='Login', form=form)
+    return render_template('Login.html', title='Login', form=form)
 
 @app.route("/logout")
 def logout():
@@ -68,3 +69,39 @@ def listContents(listId):
     for x in contents:
         print(x)
     return render_template('ListContents.html', contents=contents)
+
+@app.route("/settings")
+def settings():
+    return render_template('Settings.html')
+
+@app.route("/settings/editAccount", methods=['GET', 'POST'])
+@login_required
+def editAccount():
+    user = User.query.filter_by(id=current_user.id).first()
+
+    form = EditAccountForm()
+    if request.method == 'POST':
+        user.username = form.username.data
+        user.email = form.email.data
+        try:
+            form.validate_email(user.email)
+            try:
+                form.validate_email(user.email)
+                db.session.commit()
+                flash('Your account has been updated.', 'success')
+                return redirect(url_for('editAccount'))
+            except:
+                db.session.rollback()
+                flash('Your changes failed to save.', 'fail')
+        except:
+            flash('That email is already in use. Please try another.', 'fail')
+        return redirect(url_for('editAccount'))
+    
+    elif request.method == 'GET':
+        form.username.data = user.username
+        form.email.data = user.email
+        
+    
+    return render_template('EditAccount.html', title='Edit Account', form=form)
+
+
