@@ -4,7 +4,7 @@ from GroceryTracking import app, db, bcrypt
 from flask_login import login_user, current_user, logout_user, login_required
 from GroceryTracking.models import List, User, Item, Content
 from GroceryTracking.forms import LogInForm, RegistrationForm, EditAccountForm
-from GroceryTracking.helperFunctions import nextHighestUserId
+from GroceryTracking.helperFunctions import nextHighestUserId, getInformationOnUpc, addItemToDatabaseAndList
 from GroceryTracking.testFunctions import recreateDatabaseBlank, recreateDatabaseTestFill
 
 
@@ -101,7 +101,20 @@ def editAccount():
         form.username.data = user.username
         form.email.data = user.email
         
-    
     return render_template('EditAccount.html', title='Edit Account', form=form)
+
+@app.route("/getItem", methods=['GET', 'POST'])
+@login_required
+def getItem():
+    try:
+        print('getting information from API')
+        itemInformation = getInformationOnUpc('640522710850')
+        print('Adding item to database.')
+        addItemToDatabaseAndList(itemInformation)
+        flash('Successfully added Item to list.', 'success')
+        return render_template('MainMenu.html')
+    except:
+        flash('Failed to add item to list. Already exists in Database.', 'fail')
+        return render_template('MainMenu.html')
 
 
