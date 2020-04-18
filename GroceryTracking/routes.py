@@ -80,7 +80,7 @@ def settings():
     return render_template('Settings.html')
 
 
-@app.route("/listManagement")#, methods=['GET', 'POST'])
+@app.route("/listManagement")
 @login_required
 def listManagement():
     return render_template('listManagement.html')
@@ -114,10 +114,10 @@ def deleteList():
         x = db.session.query(List).filter(List.name == nameDelete).all()[0]
         db.session.delete(x)
         db.session.commit()
-        flash('Your List has been created!', 'success')
+        flash('Your List has been deleted!', 'success')
         return redirect(url_for('userLists'))
     return render_template('deleteList.html', title='Delete List', form=form, legend='Delete List')
-    
+
 @app.route("/settings/editAccount", methods=['GET', 'POST'])
 @login_required
 def editAccount():
