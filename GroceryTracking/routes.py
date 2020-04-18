@@ -3,15 +3,16 @@ from sqlalchemy import func, and_
 from GroceryTracking import app, db, bcrypt
 from flask_login import login_user, current_user, logout_user, login_required
 from GroceryTracking.models import List, User, Item, Content
-from GroceryTracking.forms import LogInForm, RegistrationForm, EditAccountForm
-from GroceryTracking.helperFunctions import nextHighestUserId, getInformationOnUpc, addItemToDatabaseAndList
+from GroceryTracking.forms import LogInForm, RegistrationForm, EditAccountForm, AddListForm, DeleteListForm
+from GroceryTracking.helperFunctions import nextHighestUserId, getInformationOnUpc, addItemToDatabaseAndList, nextHighestListId
 from GroceryTracking.testFunctions import recreateDatabaseBlank, recreateDatabaseTestFill
 
-
+@app.route("/")
 @app.route("/MainMenu")
 @login_required
 def mainMenuRoute():
     return render_template('MainMenu.html')
+
 
 @app.route("/registerRoute", methods=['GET', 'POST'])
 def registerRoute():
@@ -21,7 +22,7 @@ def registerRoute():
     if form.validate_on_submit():
         userId = nextHighestUserId()
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        newUser = User(id = userId, username=form.username.data, email=form.email.data, password=hashed_password)
+        newUser = User(id=userId, username=form.username.data, email=form.email.data, password=hashed_password)
         try:
             db.session.add(newUser)
             db.session.commit()
@@ -33,7 +34,8 @@ def registerRoute():
         return redirect(url_for('login'))
     return render_template('Register.html', title='Register', form=form)
 
-@app.route("/")
+
+
 @app.route("/login", methods=['GET', 'POST'])
 def login():
     ##Tests by adding fake users, lists, items. Comment out and save for testing purposes after turning server on.
@@ -51,6 +53,7 @@ def login():
             flash('Login Unsuccessful. Please check email and password', 'danger')
     return render_template('Login.html', title='Login', form=form)
 
+
 @app.route("/logout")
 def logout():
     logout_user()
@@ -59,13 +62,15 @@ def logout():
 
 @app.route("/userLists")
 def userLists():
-    lists = List.query.filter_by(user_id = current_user.id)
+    lists = List.query.filter_by(user_id=current_user.id)
     return render_template('YourLists.html', lists=lists)
+
 
 @app.route("/listContents/<int:listId>")
 def listContents(listId):
     currentList = listId
-    contents = db.session.query(Item.name, Content.quantity).join(Item).filter(and_(Item.upc==Content.item_upc, Content.list_id==currentList))
+    contents = db.session.query(Item.name, Content.quantity).join(Item).filter(
+        and_(Item.upc == Content.item_upc, Content.list_id == currentList))
     for x in contents:
         print(x)
     return render_template('ListContents.html', contents=contents)
@@ -73,6 +78,51 @@ def listContents(listId):
 @app.route("/settings")
 def settings():
     return render_template('Settings.html')
+
+
+@app.route("/listManagement")
+@login_required
+def listManagement():
+    return render_template('listManagement.html')
+
+@app.route("/addList", methods=['GET', 'POST'])
+@login_required
+def addList():
+    form = AddListForm()
+
+    if form.validate_on_submit():
+        addID = nextHighestListId()
+
+        nameAdd = form.nameAdd.data
+        newList = List(id=addID, user_id=current_user.id, name=nameAdd, size=0)
+
+        db.session.add(newList)
+        db.session.commit()
+        flash('Your List has been created!', 'success')
+        return redirect(url_for('userLists'))
+    return render_template('addList.html', title='New List', form=form, legend='New List')
+
+@app.route("/deleteList", methods=['GET', 'POST'])
+@login_required
+def deleteList():
+    form = DeleteListForm()
+    form.addUsersListsToForm()
+
+    if request.method == 'POST':
+        print(form.listOfLists.data)
+        #-1 is the value assigned to the value in the choices list of "Pick a list"
+        if form.listOfLists.data == '-1':
+            flash('Please select a list.', 'fail')
+        elif form.listOfLists.data != 'None':
+            listToDeleteId = form.listOfLists.data
+            selectedListFromDatabase = List.query.filter_by(id=listToDeleteId).first()
+            db.session.delete(selectedListFromDatabase)
+            db.session.commit()
+            flash('Your List has been deleted!', 'success')
+            return redirect(url_for('userLists'))
+        else:
+            flash('There are no lists to delete.', 'success')
+    return render_template('deleteList.html', title='Delete List', form=form, legend='Delete List')
 
 @app.route("/settings/editAccount", methods=['GET', 'POST'])
 @login_required

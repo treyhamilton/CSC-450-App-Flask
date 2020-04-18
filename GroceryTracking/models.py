@@ -25,7 +25,7 @@ class List(db.Model):
     name = db.Column(db.String, nullable=False)
     size = db.Column(db.Integer, nullable=True)
 
-    list_content = db.relationship("Content", backref="list")
+    list_content = db.relationship("Content", backref="list", cascade="all, delete")
 
     def __repr__(self):
         return f'List(id:{self.id}, user_id:{self.user_id}, name:{self.name}, size:{self.size})'
