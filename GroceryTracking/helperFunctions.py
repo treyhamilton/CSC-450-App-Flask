@@ -51,3 +51,4 @@ def addItemToDatabaseAndList(item):
         newItem = Item(upc=item['ean'], name=item['title'])
         db.session.add(newItem)
         db.session.commit()
+

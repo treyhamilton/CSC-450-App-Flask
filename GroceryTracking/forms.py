@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import IntegerField, StringField, PasswordField, SubmitField, BooleanField, SelectField, TextAreaField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
-from GroceryTracking.models import User
+from GroceryTracking.models import User, List
 from flask_login import login_user, current_user, logout_user, login_required
 
 
@@ -28,13 +28,29 @@ class LogInForm(FlaskForm):
     remember = BooleanField("Remember My Login")
     submit = SubmitField("Login")
 
+
+class RenameListForm(FlaskForm):
+    oldList = SelectField("List to be Renamed", choices=[])
+    newList = StringField("New Name")
+    changeButton = SubmitField("Submit")
+    def addUsersListsToForm(self):
+        self.oldList.choices = [(usersList.id, usersList.name)
+                                   for usersList in
+                                   List.query.filter_by(user_id=current_user.id).all()]
+
+
+
 class AddListForm(FlaskForm):
     nameAdd = TextAreaField("Name")
     addButton = SubmitField("Add List")
 
 class DeleteListForm(FlaskForm):
-    nameDelete = TextAreaField("Name")
+    listOfLists = SelectField("Name", choices=[])
     deleteButton = SubmitField("Delete List")
+    def addUsersListsToForm(self):
+        self.listOfLists.choices= [(usersList.id, usersList.name)
+                                   for usersList in
+                                   List.query.filter_by(user_id=current_user.id).all()]
 
 class EditAccountForm(FlaskForm):
     username = StringField("Username")

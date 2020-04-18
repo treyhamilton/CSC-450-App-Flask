@@ -3,7 +3,7 @@ from sqlalchemy import func, and_
 from GroceryTracking import app, db, bcrypt
 from flask_login import login_user, current_user, logout_user, login_required
 from GroceryTracking.models import List, User, Item, Content
-from GroceryTracking.forms import LogInForm, RegistrationForm, EditAccountForm, AddListForm, DeleteListForm
+from GroceryTracking.forms import LogInForm, RegistrationForm, EditAccountForm, AddListForm, DeleteListForm, RenameListForm
 from GroceryTracking.helperFunctions import nextHighestUserId, getInformationOnUpc, addItemToDatabaseAndList, \
     nextHighestListId
 from GroceryTracking.testFunctions import recreateDatabaseBlank, recreateDatabaseTestFill
@@ -110,17 +110,39 @@ def addList():
 @login_required
 def deleteList():
     form = DeleteListForm()
+    form.addUsersListsToForm()
 
-    if form.validate_on_submit():
-        nameDelete = form.nameDelete.data
-        inputData = [nameDelete]
-        print(inputData)
-        x = db.session.query(List).filter(List.name == nameDelete).all()[0]
-        db.session.delete(x)
+    if request.method == 'POST':
+        listToDeleteId = form.listOfLists.data
+        selectedListFromDatabase = List.query.filter_by(id=listToDeleteId).first()
+        db.session.delete(selectedListFromDatabase)
         db.session.commit()
         flash('Your List has been deleted!', 'success')
         return redirect(url_for('userLists'))
     return render_template('deleteList.html', title='Delete List', form=form, legend='Delete List')
+
+@app.route("/renameList", methods=['GET', 'POST'])
+@login_required
+def renameList():
+    form = RenameListForm()
+    form.addUsersListsToForm()
+    print(form.newList.data)
+
+    if request.method == 'POST':
+        listToRenameID = form.oldList.data
+        selectedListFromDatabase = List.query.filter_by(id=listToRenameID).first()
+        print(form.newList.data)
+        try:
+            selectedListFromDatabase.name = form.newList.data
+            db.session.commit()
+            flash('Your List has been updated.', 'success')
+            return redirect(url_for('userLists'))
+        except:
+            db.session.rollback()
+            flash('Your changes failed to save.', 'fail')
+            return redirect(url_for('userLists'))
+
+    return render_template('renameList.html', title='Rename List', form=form, legend='Rename List')
 
 
 @app.route("/settings/editAccount", methods=['GET', 'POST'])
