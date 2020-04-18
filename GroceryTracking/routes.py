@@ -3,12 +3,11 @@ from sqlalchemy import func, and_
 from GroceryTracking import app, db, bcrypt
 from flask_login import login_user, current_user, logout_user, login_required
 from GroceryTracking.models import List, User, Item, Content
-from GroceryTracking.forms import LogInForm, RegistrationForm, AddListForm, DeleteListForm
-from GroceryTracking.helperFunctions import nextHighestUserId
+from GroceryTracking.forms import LogInForm, RegistrationForm, EditAccountForm, AddListForm, DeleteListForm
+from GroceryTracking.helperFunctions import nextHighestUserId, getInformationOnUpc, addItemToDatabaseAndList, nextHighestListId
 from GroceryTracking.testFunctions import recreateDatabaseBlank, recreateDatabaseTestFill
 
 
-@app.route("/")
 @app.route("/MainMenu")
 @login_required
 def mainMenuRoute():
@@ -33,13 +32,14 @@ def registerRoute():
             db.session.rollback()
             flash('Your account has not been created.', 'fail')
         return redirect(url_for('login'))
-    return render_template('register.html', title='Register', form=form)
+    return render_template('Register.html', title='Register', form=form)
 
 
+@app.route("/")
 @app.route("/login", methods=['GET', 'POST'])
 def login():
-    ##Tests by adding fake users, lists, items
-    recreateDatabaseTestFill()
+    ##Tests by adding fake users, lists, items. Comment out and save for testing purposes after turning server on.
+    #recreateDatabaseTestFill()
     if current_user.is_authenticated:
         return redirect(url_for('mainMenuRoute'))
     form = LogInForm()
@@ -51,7 +51,7 @@ def login():
             return redirect(next_page) if next_page else redirect(url_for('mainMenuRoute'))
         else:
             flash('Login Unsuccessful. Please check email and password', 'danger')
-    return render_template('login.html', title='Login', form=form)
+    return render_template('Login.html', title='Login', form=form)
 
 
 @app.route("/logout")
@@ -89,21 +89,18 @@ def listManagement():
 @login_required
 def addList():
     form = AddListForm()
-    size = 0
 
     if form.validate_on_submit():
-        addID = form.idAdd.data
+        addID = nextHighestListId()
+
         nameAdd = form.nameAdd.data
-        inputData = [addID, nameAdd]
-        print(inputData)
         newList = List(id=addID, user_id=current_user.id, name=nameAdd, size=0)
 
         db.session.add(newList)
         db.session.commit()
         flash('Your List has been created!', 'success')
         return redirect(url_for('userLists'))
-    return render_template('addList.html', title='New List',
-                           form=form, legend='New List')
+    return render_template('addList.html', title='New List', form=form, legend='New List')
 
 @app.route("/deleteList", methods=['GET', 'POST'])
 @login_required
@@ -119,5 +116,49 @@ def deleteList():
         db.session.commit()
         flash('Your List has been created!', 'success')
         return redirect(url_for('userLists'))
-    return render_template('deleteList.html', title='Delete List',
-                           form=form, legend='Delete List')
+    return render_template('deleteList.html', title='Delete List', form=form, legend='Delete List')
+    
+@app.route("/settings/editAccount", methods=['GET', 'POST'])
+@login_required
+def editAccount():
+    user = User.query.filter_by(id=current_user.id).first()
+
+    form = EditAccountForm()
+    if request.method == 'POST':
+        user.username = form.username.data
+        user.email = form.email.data
+        try:
+            form.validate_email(user.email)
+            try:
+                form.validate_email(user.email)
+                db.session.commit()
+                flash('Your account has been updated.', 'success')
+                return redirect(url_for('editAccount'))
+            except:
+                db.session.rollback()
+                flash('Your changes failed to save.', 'fail')
+        except:
+            flash('That email is already in use. Please try another.', 'fail')
+        return redirect(url_for('editAccount'))
+    
+    elif request.method == 'GET':
+        form.username.data = user.username
+        form.email.data = user.email
+        
+    return render_template('EditAccount.html', title='Edit Account', form=form)
+
+@app.route("/getItem", methods=['GET', 'POST'])
+@login_required
+def getItem():
+    try:
+        print('getting information from API')
+        itemInformation = getInformationOnUpc('640522710850')
+        print('Adding item to database.')
+        addItemToDatabaseAndList(itemInformation)
+        flash('Successfully added Item to list.', 'success')
+        return render_template('MainMenu.html')
+    except:
+        flash('Failed to add item to list. Already exists in Database.', 'fail')
+        return render_template('MainMenu.html')
+
+

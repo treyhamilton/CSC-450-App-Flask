@@ -29,11 +29,25 @@ class LogInForm(FlaskForm):
     submit = SubmitField("Login")
 
 class AddListForm(FlaskForm):
-    idAdd = IntegerField("ID")
     nameAdd = TextAreaField("Name")
     addButton = SubmitField("Add List")
 
 class DeleteListForm(FlaskForm):
     nameDelete = TextAreaField("Name")
     deleteButton = SubmitField("Delete List")
+
+class EditAccountForm(FlaskForm):
+    username = StringField("Username")
+    email = StringField("Email")
+    submit = SubmitField("Submit")
+
+    def validate_username(self, username):
+        user = User.query.filter_by(username=username.data).first()
+        if user:
+            raise ValidationError('That username is taken. Please choose a different one.')
+
+    def validate_email(self, email):
+        user = User.query.filter_by(email=email.data).first()
+        if user:
+            raise ValidationError('That email is taken. Please choose a different one.')
 
