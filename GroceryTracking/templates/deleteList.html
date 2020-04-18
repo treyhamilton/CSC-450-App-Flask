@@ -1,28 +1,21 @@
 
 {% extends "layout.html" %}
 {% block content %}
-    <div class="content-section">
-        <form method="POST" action="">
-            {{ form.hidden_tag() }}
-            <fieldset class="form-group">
-                <legend class="border-bottom mb-4">Delete A List</legend>
-                <div class="form-group">
-                    {{ form.nameDelete.label(class="form-control-label") }}
-                    {% if form.nameDelete.errors %}
-                        {{ form.nameDelete(class="form-control form-control-lg is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.nameDelete.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        {{ form.nameDelete(class="form-control form-control-lg") }}
-                    {% endif %}
-                </div>
-            </fieldset>
+<div class="content-section">
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        <fieldset class="form-group">
             <div class="form-group">
-                {{ form.deleteButton(class="btn btn-outline-info") }}
+
+                    {{ form.listOfLists.label(class_="form-control-label") }}
+                    {{ form.listOfLists(class="form-control form-control") }}
+
             </div>
-        </form>
-    </div>
+        </fieldset>
+        <div class="form-group">
+            <a class="btn btn-danger" type="button" href="{{ url_for('listManagement') }}" style="width:40%"><font size="5">Back</font></a>
+            <button type="submit" class="btn btn-primary" style="width:40%"><font size="5">Delete</font></button>
+        </div>
+    </form>
+</div>
 {% endblock content %}

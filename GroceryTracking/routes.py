@@ -7,7 +7,7 @@ from GroceryTracking.forms import LogInForm, RegistrationForm, EditAccountForm, 
 from GroceryTracking.helperFunctions import nextHighestUserId, getInformationOnUpc, addItemToDatabaseAndList, nextHighestListId
 from GroceryTracking.testFunctions import recreateDatabaseBlank, recreateDatabaseTestFill
 
-
+@app.route("/")
 @app.route("/MainMenu")
 @login_required
 def mainMenuRoute():
@@ -35,7 +35,7 @@ def registerRoute():
     return render_template('Register.html', title='Register', form=form)
 
 
-@app.route("/")
+
 @app.route("/login", methods=['GET', 'POST'])
 def login():
     ##Tests by adding fake users, lists, items. Comment out and save for testing purposes after turning server on.
@@ -106,13 +106,12 @@ def addList():
 @login_required
 def deleteList():
     form = DeleteListForm()
+    form.addUsersListsToForm()
 
-    if form.validate_on_submit():
-        nameDelete = form.nameDelete.data
-        inputData = [nameDelete]
-        print(inputData)
-        x = db.session.query(List).filter(List.name == nameDelete).all()[0]
-        db.session.delete(x)
+    if request.method == 'POST':
+        listToDeleteId = form.listOfLists.data
+        selectedListFromDatabase = List.query.filter_by(id=listToDeleteId).first()
+        db.session.delete(selectedListFromDatabase)
         db.session.commit()
         flash('Your List has been deleted!', 'success')
         return redirect(url_for('userLists'))
