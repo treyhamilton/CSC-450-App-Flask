@@ -109,12 +109,19 @@ def deleteList():
     form.addUsersListsToForm()
 
     if request.method == 'POST':
-        listToDeleteId = form.listOfLists.data
-        selectedListFromDatabase = List.query.filter_by(id=listToDeleteId).first()
-        db.session.delete(selectedListFromDatabase)
-        db.session.commit()
-        flash('Your List has been deleted!', 'success')
-        return redirect(url_for('userLists'))
+        print(form.listOfLists.data)
+        #-1 is the value assigned to the value in the choices list of "Pick a list"
+        if form.listOfLists.data == '-1':
+            flash('Please select a list.', 'fail')
+        elif form.listOfLists.data != 'None':
+            listToDeleteId = form.listOfLists.data
+            selectedListFromDatabase = List.query.filter_by(id=listToDeleteId).first()
+            db.session.delete(selectedListFromDatabase)
+            db.session.commit()
+            flash('Your List has been deleted!', 'success')
+            return redirect(url_for('userLists'))
+        else:
+            flash('There are no lists to delete.', 'success')
     return render_template('deleteList.html', title='Delete List', form=form, legend='Delete List')
 
 @app.route("/settings/editAccount", methods=['GET', 'POST'])

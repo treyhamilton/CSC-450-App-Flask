@@ -38,6 +38,7 @@ class DeleteListForm(FlaskForm):
 
     def addUsersListsToForm(self):
         self.listOfLists.choices= [(usersList.id, usersList.name) for usersList in List.query.filter_by(user_id=current_user.id).all()]
+        self.listOfLists.choices.insert(0, (-1, 'Pick a list'))
 
 class EditAccountForm(FlaskForm):
     username = StringField("Username")
