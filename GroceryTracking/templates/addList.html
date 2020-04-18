@@ -7,20 +7,6 @@
             <fieldset class="form-group">
                 <legend class="border-bottom mb-4">Add A List</legend>
                 <div class="form-group">
-                    {{ form.idAdd.label(class="form-control-label") }}
-
-                    {% if form.idAdd.errors %}
-                        {{ form.idAdd(class="form-control form-control-lg is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.idAdd.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        {{ form.idAdd(class="form-control form-control-lg") }}
-                    {% endif %}
-                </div>
-                <div class="form-group">
                     {{ form.nameAdd.label(class="form-control-label") }}
                     {% if form.nameAdd.errors %}
                         {{ form.nameAdd(class="form-control form-control-lg is-invalid") }}
