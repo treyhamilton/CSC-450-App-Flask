@@ -118,6 +118,7 @@ def deleteList():
         db.session.delete(x)
         db.session.commit()
         flash('Your List has been created!', 'success')
+        flash('Your List has been deleted!', 'success')
         return redirect(url_for('userLists'))
     return render_template('deleteList.html', title='Delete List',
                            form=form, legend='Delete List')
