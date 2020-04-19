@@ -28,6 +28,18 @@ class LogInForm(FlaskForm):
     remember = BooleanField("Remember My Login")
     submit = SubmitField("Login")
 
+
+class RenameListForm(FlaskForm):
+    oldList = SelectField("List to be Renamed", choices=[])
+    newList = StringField("New Name")
+    changeButton = SubmitField("Submit")
+    def addUsersListsToForm(self):
+        self.oldList.choices = [(usersList.id, usersList.name)
+                                   for usersList in
+                                   List.query.filter_by(user_id=current_user.id).all()]
+
+
+
 class AddListForm(FlaskForm):
     nameAdd = TextAreaField("Name")
     addButton = SubmitField("Add List")
@@ -35,6 +47,10 @@ class AddListForm(FlaskForm):
 class DeleteListForm(FlaskForm):
     listOfLists = SelectField("Name", choices=[])
     deleteButton = SubmitField("Delete List")
+    def addUsersListsToForm(self):
+        self.listOfLists.choices= [(usersList.id, usersList.name)
+                                   for usersList in
+                                   List.query.filter_by(user_id=current_user.id).all()]
 
     def addUsersListsToForm(self):
         self.listOfLists.choices= [(usersList.id, usersList.name) for usersList in List.query.filter_by(user_id=current_user.id).all()]
