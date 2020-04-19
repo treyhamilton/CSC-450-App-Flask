@@ -3,7 +3,8 @@ from sqlalchemy import func, and_
 from GroceryTracking import app, db, bcrypt
 from flask_login import login_user, current_user, logout_user, login_required
 from GroceryTracking.models import List, User, Item, Content
-from GroceryTracking.forms import LogInForm, RegistrationForm, EditAccountForm, AddListForm, DeleteListForm, RenameListForm
+from GroceryTracking.forms import LogInForm, RegistrationForm, EditAccountForm, AddListForm, DeleteListForm, RenameListForm,\
+    ChangePasswordForm, ValidationError
 from GroceryTracking.helperFunctions import nextHighestUserId, getInformationOnUpc, addItemToDatabaseAndList, \
     nextHighestListId
 from GroceryTracking.testFunctions import recreateDatabaseBlank, recreateDatabaseTestFill
@@ -195,3 +196,26 @@ def getItem():
     except:
         flash('Failed to add item to list. Already exists in Database.', 'fail')
         return render_template('MainMenu.html')
+
+@app.route("/changePassword", methods=['GET', 'POST'])
+@login_required
+def changePassword():
+    form = ChangePasswordForm()
+    # Check form
+    if form.validate_on_submit():
+        # Check if the current password is correct
+        if bcrypt.check_password_hash(current_user.password, form.oldPassword.data):
+           # Hash the new password
+            newPassword = bcrypt.generate_password_hash(form.newPassword.data).decode('utf-8')
+            # Update the new password
+            current_user.password = newPassword
+            # Save changes
+            db.session.commit()
+            flash('Successfully changed password.', 'success')
+        else:
+            flash('Current password is not correct.', 'warning')
+    # check if user attempted to change password
+    elif "newPassword" in request.form:
+        flash('Passwords do not match.', 'warning')
+    return render_template('changePassword.html', title='Change Password', form=form)
+    

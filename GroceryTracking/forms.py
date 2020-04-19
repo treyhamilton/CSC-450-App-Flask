@@ -71,3 +71,8 @@ class EditAccountForm(FlaskForm):
         if user:
             raise ValidationError('That email is taken. Please choose a different one.')
 
+class ChangePasswordForm(FlaskForm):
+    oldPassword = PasswordField("Current Password", validators=[DataRequired()])
+    newPassword = PasswordField("New Password", validators=[DataRequired()])
+    confirmNewPassword = PasswordField("Re-Type Password", validators=[DataRequired(), EqualTo("newPassword")])
+    submit = SubmitField("Submit")
