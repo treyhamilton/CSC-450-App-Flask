@@ -112,7 +112,7 @@ def deleteList():
     form = DeleteListForm()
     form.addUsersListsToForm()
 
-    if request.method == 'POST'
+    if request.method == 'POST':
         print(form.listOfLists.data)
         #-1 is the value assigned to the value in the choices list of "Pick a list"
         if form.listOfLists.data == '-1':
