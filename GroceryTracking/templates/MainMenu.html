@@ -4,19 +4,19 @@
     <div class="text-center">
         <h1>Main Menu</h1>
             <div class="form-group">
-                <a class="btn btn-primary" type="button" href="{{ url_for('userLists') }}" style="width:100%"><font size="5">My Lists</font></a>
+                <a class="btn btn-primary btn-block btn-lg" type="button" href="{{ url_for('userLists') }}">My Lists</a>
             </div>
 
             <div class="form-group">
-                <a class="btn btn-primary" type="button" href="{{ url_for('listManagement') }}" style="width:100%"><font size="5">List Management</font></a>
+                <a class="btn btn-primary btn-block btn-lg" type="button" href="{{ url_for('listManagement') }}">List Management</a>
             </div>
 
             <div class="form-group">
-                <a class="btn btn-primary" type="button" href="{{ url_for('getItem') }}" style="width:100%"><font size="5">Get Item</font></a>            
+                <a class="btn btn-primary btn-block btn-lg" type="button" href="{{ url_for('settings') }}">Account Settings</a>
             </div>
 
             <div class="form-group">
-                <a class="btn btn-danger" type="button" href="{{ url_for('logout') }}" style="width:100%"><font size="5">Logout</font></a>
+                <a class="btn btn-danger btn-block btn-lg" type="button" href="{{ url_for('logout') }}">Logout</a>
             </div>
     </div>
 {% endblock content %}
