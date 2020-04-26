@@ -149,12 +149,21 @@ def deleteItem(itemName, listId):
     print("listContents before: ", listContents)
     itemListQuantity = listContents.quantity
     print(itemListQuantity)
-    itemListQuantity = itemListQuantity - 1
-    print(itemListQuantity)
-    listContents.quantity = itemListQuantity
-    print("listContents after: ", listContents)
-    db.session.commit()
-    flash('Your item quantity been updated!', 'success')
+    if itemListQuantity == 1:
+        contentEntry = db.session.query(Content).filter(Content.list_id == listId,
+                                                        Content.item_upc == itemUPC).all()[0]
+        itemEntry = db.session.query(Item).filter(Item.upc == itemUPC).all()[0]
+        db.session.delete(contentEntry)
+        db.session.delete(itemEntry)
+        db.session.commit()
+        flash('Your item has been deleted!', 'success')
+    else:
+        itemListQuantity = itemListQuantity - 1
+        print(itemListQuantity)
+        listContents.quantity = itemListQuantity
+        print("listContents after: ", listContents)
+        db.session.commit()
+        flash('Your item quantity been updated!', 'success')
     return redirect(url_for('listContents', listId=listId))
 
 
