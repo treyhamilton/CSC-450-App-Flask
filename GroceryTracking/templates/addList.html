@@ -1,27 +1,26 @@
-
 {% extends "layout.html" %}
 {% block content %}
-    <div class="content-section">
+    <div class="text-center">
         <form method="POST" action="">
             {{ form.hidden_tag() }}
-            <fieldset class="form-group">
-                <legend class="border-bottom mb-4">Add A List</legend>
-                <div class="form-group">
-                    {{ form.nameAdd.label(class="form-control-label") }}
-                    {% if form.nameAdd.errors %}
-                        {{ form.nameAdd(class="form-control form-control-lg is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.email.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        {{ form.nameAdd(class="form-control form-control-lg") }}
-                    {% endif %}
-                </div>
-            </fieldset>
+              <h1>Add A List</h1>
             <div class="form-group">
-                {{ form.addButton(class="btn btn-outline-info") }}
+                {{ form.nameAdd.label(class="form-control-label") }}
+                {% if form.nameAdd.errors %}
+                    {{ form.nameAdd(class="form-control form-control-lg is-invalid") }}
+
+                    <div class="invalid-feedback">
+                        {% for error in form.nameAdd.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+
+                {% else %}
+                    {{ form.nameAdd(class="form-control form-control-lg") }}
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.addButton(class="btn btn-primary btn-block btn-lg") }}
             </div>
         </form>
     </div>

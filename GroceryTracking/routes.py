@@ -4,7 +4,7 @@ from GroceryTracking import app, db, bcrypt
 from flask_login import login_user, current_user, logout_user, login_required
 from GroceryTracking.models import List, User, Item, Content
 from GroceryTracking.forms import LogInForm, RegistrationForm, EditAccountForm, AddListForm, DeleteListForm, RenameListForm,\
-    ChangePasswordForm, ValidationError
+    ChangePasswordForm, ValidationError, AddItemManuallyForm
 from GroceryTracking.helperFunctions import nextHighestUserId, getInformationOnUpc, addItemToDatabaseAndList, \
     nextHighestListId
 from GroceryTracking.testFunctions import recreateDatabaseBlank, recreateDatabaseTestFill
@@ -68,14 +68,91 @@ def userLists():
     return render_template('YourLists.html', lists=lists)
 
 
+@app.route("/addItemManually", methods=['POST', 'GET'])
+@login_required
+def AddItemManually():
+    form = AddItemManuallyForm()
+    itemName = form.itemName.data
+    itemUPC = form.itemUPC.data
+    itemQuantity = form.itemQuantity.data
+    ListName = form.ListName.data
+    if form.validate_on_submit():
+        testQuery = db.session.query(Item).filter(Item.upc == itemUPC).first()
+        print(testQuery)
+        if testQuery == None:
+            newItem = Item(upc=itemUPC, name=itemName)
+            db.session.add(newItem)
+        ListID = db.session.query(List.id).filter(List.name == ListName).all()[0][0]
+        print(current_user)
+        testQuery = db.session.query(Content).filter(Content.item_upc == itemUPC,
+                                                     Content.list_id == ListID).first()
+        if testQuery == None:
+            newContentEntry = Content(item_upc=itemUPC, list_id=ListID,
+                                  quantity=itemQuantity)
+            db.session.add(newContentEntry)
+        else:
+            testQuery.quantity += 1
+        db.session.commit()
+        flash('Your item added', 'success')
+
+    return render_template('AddItemManually.html', title='New Item', form=form, legend='New Item')
+
+
+
 @app.route("/listContents/<int:listId>")
 def listContents(listId):
     currentList = listId
-    contents = db.session.query(Item.name, Content.quantity).join(Item).filter(
+    contents = db.session.query(Item.name, Content.quantity, Content.list_id).join(Item).filter(
         and_(Item.upc == Content.item_upc, Content.list_id == currentList))
     for x in contents:
         print(x)
     return render_template('ListContents.html', contents=contents)
+
+
+@app.route("/listContents/delete/<int:listId>/<string:itemName>", methods=['POST', 'GET'])
+@login_required
+def deleteItem(itemName, listId):
+    print("itemName: ", itemName)
+    currentList = listId
+    contents = db.session.query(Item.name, Content.quantity, Content.list_id).join(Item).filter(
+        and_(Item.upc == Content.item_upc, Content.list_id == currentList))
+
+    itemUPC = db.session.query(Item.upc).filter(Item.name == itemName).all()[0][0]
+    listContents = db.session.query(Content).filter(Content.item_upc == itemUPC,
+                                                    Content.list_id == listId).all()[0]
+    print("listContents before: ", listContents)
+    itemListQuantity = listContents.quantity
+    print(itemListQuantity)
+    itemListQuantity = itemListQuantity - 1
+    print(itemListQuantity)
+    listContents.quantity = itemListQuantity
+    print("listContents after: ", listContents)
+    db.session.commit()
+    flash('Your item quantity been updated!', 'success')
+    return redirect(url_for('listContents', listId=listId))
+
+
+@app.route("/listContents/add/<int:listId>/<string:itemName>", methods=['POST', 'GET'])
+@login_required
+def AddOneItem(itemName, listId):
+    print("itemName: ", itemName)
+    currentList = listId
+    contents = db.session.query(Item.name, Content.quantity, Content.list_id).join(Item).filter(
+        and_(Item.upc == Content.item_upc, Content.list_id == currentList))
+
+    itemUPC = db.session.query(Item.upc).filter(Item.name == itemName).all()[0][0]
+    listContents = db.session.query(Content).filter(Content.item_upc == itemUPC,
+                                                    Content.list_id == listId).all()[0]
+    print("listContents before: ", listContents)
+    itemListQuantity = listContents.quantity
+    print(itemListQuantity)
+    itemListQuantity = itemListQuantity + 1
+    print(itemListQuantity)
+    listContents.quantity = itemListQuantity
+    print("listContents after: ", listContents)
+    db.session.commit()
+    flash('Your item quantity been updated!', 'success')
+    return redirect(url_for('listContents', listId=listId))
 
 
 @app.route("/settings")

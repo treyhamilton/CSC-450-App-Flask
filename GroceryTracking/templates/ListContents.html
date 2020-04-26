@@ -7,14 +7,24 @@
         </h1>
         {% for item in contents %}
             <article class="m879edia content-section">
-                <div class="media-body">
-                    <p>
-                        {{ item.name }}
-                        <small class="text-muted">Quantity: {{ item.quantity }}</small>
-                    </p>
+                <div class="media-body">-->
+<!--                    <p>-->
+<!--                        {{ item.name }}-->
+<!--                        <small class="text-muted">Quantity: {{ item.quantity }}</small>-->
+<!--                        <a class="btn btn-primary btn-block btn-lg" type="button" >{{item.name}}</a>-->
+<!--                    </p>-->
+<!--                </div>-->
+                <div class="btn-group" role="group" aria-label="Basic example">
+                    <button type="button" class="btn btn-secondary btn-lg" disabled>{{item.name}}</button>
+                    <button type="button" class="btn btn-secondary btn-sm" disabled>Quantity: {{ item.quantity }}</button>
+                    <a class="btn btn-primary btn-sm" type="button" href="{{ url_for('deleteItem', itemName=item.name, listId=item.list_id) }}" methods=["POST"]>Delete One</a>
+                    <a class="btn btn-success btn-sm" type="button" href="{{ url_for('AddOneItem', itemName=item.name, listId=item.list_id) }}" methods=["POST"]>Add One</a>
+                </div>
                 </div>
             </article>
         {% endfor %}
     </div>
+<!-- Modal -->
+
 
 {% endblock content %}
