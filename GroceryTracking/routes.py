@@ -68,6 +68,32 @@ def userLists():
     return render_template('YourLists.html', lists=lists)
 
 
+@app.route("/userLists/displayAllItems", methods=['POST', 'GET'])
+@login_required
+def displayAllItems():
+    currentUser = current_user
+    userLists = []
+    itemContentList = []
+    itemNameAndQuantityList = []
+    userListsWithCommas = db.session.query(List.id).filter(currentUser.id == List.user_id).all()
+    for listID in userListsWithCommas:
+        listIDWithoutCommas = listID[0]
+        userLists.append(listIDWithoutCommas)
+    for listID in userLists:
+        ContentList = db.session.query(Content).filter(Content.list_id == listID).all()
+        for contentEntry in ContentList:
+            itemContentList.append(contentEntry)
+    for item in itemContentList:
+        itemUPC = item.item_upc
+        itemQuantity = item.quantity
+        testQuery = db.session.query(Item.name).filter(Item.upc == itemUPC).first()
+        if testQuery != None:
+            itemName = db.session.query(Item.name).filter(Item.upc == itemUPC).all()[0][0]
+            itemNameAndQuantityList.append([itemName, itemQuantity])
+
+    return render_template('DisplayAllitems.html', itemNameAndQuantityList=itemNameAndQuantityList)
+
+
 @app.route("/addItemManually", methods=['POST', 'GET'])
 @login_required
 def AddItemManually():
