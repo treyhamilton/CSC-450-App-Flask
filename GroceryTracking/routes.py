@@ -3,13 +3,11 @@ from sqlalchemy import func, and_
 from GroceryTracking import app, db, bcrypt
 from flask_login import login_user, current_user, logout_user, login_required
 from GroceryTracking.models import List, User, Item, Content
-from GroceryTracking.forms import LogInForm, RegistrationForm, EditAccountForm, AddListForm, DeleteListForm, \
-    RenameListForm, \
-    ChangePasswordForm, ValidationError, AddItemManuallyForm
+from GroceryTracking.forms import LogInForm, RegistrationForm, EditAccountForm, AddListForm, DeleteListForm, RenameListForm,\
+    ChangePasswordForm, ValidationError
 from GroceryTracking.helperFunctions import nextHighestUserId, getInformationOnUpc, addItemToDatabaseAndList, \
     nextHighestListId
 from GroceryTracking.testFunctions import recreateDatabaseBlank, recreateDatabaseTestFill
-
 
 @app.route("/")
 @app.route("/MainMenu")
@@ -37,6 +35,7 @@ def registerRoute():
             flash('Your account has not been created.', 'fail')
         return redirect(url_for('login'))
     return render_template('Register.html', title='Register', form=form)
+
 
 
 @app.route("/login", methods=['GET', 'POST'])
@@ -69,91 +68,14 @@ def userLists():
     return render_template('YourLists.html', lists=lists)
 
 
-@app.route("/addItemManually", methods=['POST', 'GET'])
-@login_required
-def AddItemManually():
-    form = AddItemManuallyForm()
-    itemName = form.itemName.data
-    itemUPC = form.itemUPC.data
-    itemQuantity = form.itemQuantity.data
-    ListName = form.ListName.data
-    if form.validate_on_submit():
-        testQuery = db.session.query(Item).filter(Item.upc == itemUPC).first()
-        print(testQuery)
-        if testQuery == None:
-            newItem = Item(upc=itemUPC, name=itemName)
-            db.session.add(newItem)
-        ListID = db.session.query(List.id).filter(List.name == ListName).all()[0][0]
-        print(current_user)
-        testQuery = db.session.query(Content).filter(Content.item_upc == itemUPC,
-                                                     Content.list_id == ListID).first()
-        if testQuery == None:
-            newContentEntry = Content(item_upc=itemUPC, list_id=ListID,
-                                  quantity=itemQuantity)
-            db.session.add(newContentEntry)
-        else:
-            testQuery.quantity += 1
-        db.session.commit()
-        flash('Your item added', 'success')
-
-    return render_template('AddItemManually.html', title='New Item', form=form, legend='New Item')
-
-
 @app.route("/listContents/<int:listId>")
 def listContents(listId):
     currentList = listId
-    contents = db.session.query(Item.name, Content.quantity, Content.list_id).join(Item).filter(
+    contents = db.session.query(Item.name, Content.quantity).join(Item).filter(
         and_(Item.upc == Content.item_upc, Content.list_id == currentList))
     for x in contents:
         print(x)
-
     return render_template('ListContents.html', contents=contents)
-
-
-@app.route("/listContents/delete/<int:listId>/<string:itemName>", methods=['POST', 'GET'])
-@login_required
-def deleteItem(itemName, listId):
-    print("itemName: ", itemName)
-    currentList = listId
-    contents = db.session.query(Item.name, Content.quantity, Content.list_id).join(Item).filter(
-        and_(Item.upc == Content.item_upc, Content.list_id == currentList))
-
-    itemUPC = db.session.query(Item.upc).filter(Item.name == itemName).all()[0][0]
-    listContents = db.session.query(Content).filter(Content.item_upc == itemUPC,
-                                                    Content.list_id == listId).all()[0]
-    print("listContents before: ", listContents)
-    itemListQuantity = listContents.quantity
-    print(itemListQuantity)
-    itemListQuantity = itemListQuantity - 1
-    print(itemListQuantity)
-    listContents.quantity = itemListQuantity
-    print("listContents after: ", listContents)
-    db.session.commit()
-    flash('Your item quantity been updated!', 'success')
-    return redirect(url_for('listContents', listId=listId))
-
-
-@app.route("/listContents/add/<int:listId>/<string:itemName>", methods=['POST', 'GET'])
-@login_required
-def AddOneItem(itemName, listId):
-    print("itemName: ", itemName)
-    currentList = listId
-    contents = db.session.query(Item.name, Content.quantity, Content.list_id).join(Item).filter(
-        and_(Item.upc == Content.item_upc, Content.list_id == currentList))
-
-    itemUPC = db.session.query(Item.upc).filter(Item.name == itemName).all()[0][0]
-    listContents = db.session.query(Content).filter(Content.item_upc == itemUPC,
-                                                    Content.list_id == listId).all()[0]
-    print("listContents before: ", listContents)
-    itemListQuantity = listContents.quantity
-    print(itemListQuantity)
-    itemListQuantity = itemListQuantity + 1
-    print(itemListQuantity)
-    listContents.quantity = itemListQuantity
-    print("listContents after: ", listContents)
-    db.session.commit()
-    flash('Your item quantity been updated!', 'success')
-    return redirect(url_for('listContents', listId=listId))
 
 
 @app.route("/settings")
@@ -193,7 +115,7 @@ def deleteList():
 
     if request.method == 'POST':
         print(form.listOfLists.data)
-        # -1 is the value assigned to the value in the choices list of "Pick a list"
+        #-1 is the value assigned to the value in the choices list of "Pick a list"
         if form.listOfLists.data == '-1':
             flash('Please select a list.', 'fail')
         elif form.listOfLists.data != 'None':
@@ -206,7 +128,6 @@ def deleteList():
         else:
             flash('There are no lists to delete.', 'success')
     return render_template('deleteList.html', title='Delete List', form=form, legend='Delete List')
-
 
 @app.route("/renameList", methods=['GET', 'POST'])
 @login_required
@@ -276,7 +197,6 @@ def getItem():
         flash('Failed to add item to list. Already exists in Database.', 'fail')
         return render_template('MainMenu.html')
 
-
 @app.route("/changePassword", methods=['GET', 'POST'])
 @login_required
 def changePassword():
@@ -285,7 +205,7 @@ def changePassword():
     if form.validate_on_submit():
         # Check if the current password is correct
         if bcrypt.check_password_hash(current_user.password, form.oldPassword.data):
-            # Hash the new password
+           # Hash the new password
             newPassword = bcrypt.generate_password_hash(form.newPassword.data).decode('utf-8')
             # Update the new password
             current_user.password = newPassword
@@ -298,3 +218,4 @@ def changePassword():
     elif "newPassword" in request.form:
         flash('Passwords do not match.', 'warning')
     return render_template('changePassword.html', title='Change Password', form=form)
+    
