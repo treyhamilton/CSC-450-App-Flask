@@ -6,19 +6,13 @@
             Your Lists
         </h1>
         {% for list in lists %}
-        <div class="row">
-            <div class="col-6 form-group">
-                <a class="btn btn-primary" type="button" href="{{ url_for('listContents', listId = list.id) }}" style="width:70%"><font size="5">{{ list.name }}</font></a>
+            <div class="form-group">
+                <a class="btn btn-primary btn-block btn-lg" type="button" href="{{ url_for('listContents', listId = list.id) }}">{{ list.name }}</a>
             </div>
-        </div>
-            
         {% endfor %}
-
-        <div class="row">
-            <div class="col-6 form-group">
-                <a class="btn btn-danger" type="button" href="{{ url_for('mainMenuRoute') }}" style="width:70%"><font size="5">Back</font></a>
+            <div class="form-group">
+                <a class="btn btn-danger btn-block btn-lg" type="button" href="{{ url_for('mainMenuRoute') }}">Back</a>
             </div>
-        </div>
     </div>
 
 {% endblock content %}
