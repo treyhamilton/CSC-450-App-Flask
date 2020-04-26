@@ -8,9 +8,8 @@
         <title>Grocery Tracking</title>
 
         <!-- Bootstrap -->
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
-        <!-- Project Stylesheet -->
-        <link rel="stylesheet" type="text/css" href="/main/static/main.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">        <!-- Project Stylesheet -->
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
     </head>
 
 
@@ -44,7 +43,7 @@
           </nav>
         </header>
 
-        <main role="main" class="container" >
+         <main role="main" class="container" >
             <div class="row">
               <div class="col-md-8">
                 {% with messages = get_flashed_messages(with_categories=true) %}
