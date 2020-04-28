@@ -5,6 +5,9 @@
         <h1>
             Your Lists
         </h1>
+            <div class="form-group">
+                <a class="btn btn-primary btn-block btn-lg" type="button" href="{{ url_for('displayAllItems')}}">Display All My Items</a>
+            </div>
         {% for list in lists %}
             <div class="form-group">
                 <a class="btn btn-primary btn-block btn-lg" type="button" href="{{ url_for('listContents', listId = list.id) }}">{{ list.name }}</a>

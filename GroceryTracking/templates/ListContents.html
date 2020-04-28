@@ -5,16 +5,23 @@
         <h1>
             List's Contents
         </h1>
+        <div class="btn-group" role="group" aria-label="Basic example">
+            <a class="btn btn-primary btn-sm" type="button" href="{{ url_for('mainMenuRoute') }}" methods=["POST","GET"]>Scan Add</a>
+            <a class="btn btn-success btn-sm" type="button" href="{{ url_for('mainMenuRoute')}}" methods=["POST","GET"]>Scan Delete</a>
+        </div>
+        <span class="d-block p-3 bg-dark text-white"></span>
         {% for item in contents %}
-            <article class="m879edia content-section">
-                <div class="media-body">
-                    <p>
-                        {{ item.name }}
-                        <small class="text-muted">Quantity: {{ item.quantity }}</small>
-                    </p>
+                <div class="form-group">
+                <div class="btn-group" role="group" aria-label="Basic example">
+                    <button type="button" class="btn btn-secondary btn-sm" disabled>{{item.name}}</button>
+                    <button type="button" class="btn btn-secondary btn-sm" disabled>Quantity: {{ item.quantity }}</button>
+                    <a class="btn btn-primary btn-sm" type="button" href="{{ url_for('deleteItem', itemName=item.name, listId=item.list_id) }}" methods=["POST"]>Delete One</a>
+                    <a class="btn btn-success btn-sm" type="button" href="{{ url_for('AddOneItem', itemName=item.name, listId=item.list_id) }}" methods=["POST"]>Add One</a>
                 </div>
-            </article>
+                </div>
         {% endfor %}
     </div>
+<!-- Modal -->
+
 
 {% endblock content %}

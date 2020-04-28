@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import IntegerField, StringField, PasswordField, SubmitField, BooleanField, SelectField, TextAreaField
-from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
+from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, optional
 from GroceryTracking.models import User, List
 from flask_login import login_user, current_user, logout_user, login_required
 
@@ -75,4 +75,11 @@ class ChangePasswordForm(FlaskForm):
     oldPassword = PasswordField("Current Password", validators=[DataRequired()])
     newPassword = PasswordField("New Password", validators=[DataRequired()])
     confirmNewPassword = PasswordField("Re-Type Password", validators=[DataRequired(), EqualTo("newPassword")])
+    submit = SubmitField("Submit")
+
+class AddItemManuallyForm(FlaskForm):
+    itemName = StringField("Item Name", validators=[DataRequired()])
+    itemUPC = IntegerField("Item UPC", validators=[DataRequired()])
+    itemQuantity = IntegerField("Number of items", validators=[optional()])
+    ListName = StringField("Name of List:", validators=[DataRequired()])
     submit = SubmitField("Submit")

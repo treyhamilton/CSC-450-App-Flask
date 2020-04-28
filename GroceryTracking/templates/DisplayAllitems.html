@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% block content %}
+
+    <div class="text-center">
+        <h1>
+            All Your Items
+        </h1>
+        {% for list in itemNameAndQuantityList %}
+            <div class="form-group">
+                <div class="btn-group" role="group" aria-label="Basic example">
+                    <button type="button" class="btn btn-success btn-md" disabled>Name: {{list[0]}}</button>
+                    <button type="button" class="btn btn-secondary btn-md" disabled>Quantity: {{ list[1] }}</button>
+                </div>
+            </div>
+        {% endfor %}
+            <div class="form-group">
+                <a class="btn btn-danger btn-block btn-lg" type="button" href="{{ url_for('mainMenuRoute') }}">Back</a>
+            </div>
+    </div>
+
+{% endblock content %}
