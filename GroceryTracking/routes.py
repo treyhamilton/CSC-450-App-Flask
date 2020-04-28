@@ -70,6 +70,14 @@ def userLists():
 
 @app.route("/listContents/<int:listId>")
 def listContents(listId):
+
+    upc = request.args.getlist('add')
+    if len(upc)>0:
+        pass
+    upc = request.args.getlist('remove')
+    if len(upc)>0:
+        pass
+        
     currentList = listId
     contents = db.session.query(Item.name, Content.quantity).join(Item).filter(
         and_(Item.upc == Content.item_upc, Content.list_id == currentList))
