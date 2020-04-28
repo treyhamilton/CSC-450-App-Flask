@@ -19,26 +19,30 @@
           <nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
             <div class="container">
              {% if current_user.is_authenticated %}
-              <a class="btn btn-outline-dark" onclick="history.back()">Go back</a>
+              <a class="btn btn-outline-dark btn-sm" href="{% block back %}{% endblock back %}">Go back</a>
              {% endif %}
               <a class="navbar-brand" href="/"></a>
 
-              <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-              </button>
-              <div class="collapse navbar-collapse" id="navbarToggle">
-                <!-- Navbar Right Side -->
-                <div class="navbar-nav">
+
+                <ul class="nav justify-content-end">
                   {% if current_user.is_authenticated %}
-                    <a class="nav-item nav-link" href="{{ url_for('logout') }}">Logout</a>
-                    <a class="nav-item nav-link" href="{{ url_for('mainMenuRoute') }}">Home</a>
+                    <li class="nav-item">
+                      <a class="btn btn-outline-dark btn-sm mr-1" href="{{ url_for('logout') }}">Logout</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="btn btn-outline-dark btn-sm mr-1" href="{{ url_for('mainMenuRoute') }}">Home</a>
+                    </li>
                   {% else %}
-                    <a class="nav-item nav-link" href="{{ url_for('login') }}">Login</a>
-                    <a class="nav-item nav-link" href="{{ url_for('registerRoute') }}">Register</a>
+                    <li class="nav-item">
+                      <a class="btn btn-outline-dark btn-sm mr-1" href="{{ url_for('login') }}">Login</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="btn btn-outline-dark btn-sm mr-1" href="{{ url_for('registerRoute') }}">Register</a>
+                    </li>
                   {% endif %}
                   {% block nav %}{% endblock nav %}
-                </div>
-              </div>
+                </ul>
+
             </div>
           </nav>
         </header>

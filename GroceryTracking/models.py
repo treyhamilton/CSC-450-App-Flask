@@ -14,7 +14,6 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(20), nullable=False)
     email = db.Column(db.String(40), nullable=False)
     password = db.Column(db.String(60), nullable=False)
-
     lists = db.relationship("List", backref="user")
 
     def __repr__(self):
