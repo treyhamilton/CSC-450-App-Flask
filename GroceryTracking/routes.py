@@ -156,29 +156,60 @@ def renameList():
 @app.route("/settings/editAccount", methods=['GET', 'POST'])
 @login_required
 def editAccount():
-    user = User.query.filter_by(id=current_user.id).first()
-
+    # get form
     form = EditAccountForm()
     if request.method == 'POST':
-        user.username = form.username.data
-        user.email = form.email.data
-        try:
-            form.validate_email(user.email)
-            try:
-                form.validate_email(user.email)
-                db.session.commit()
-                flash('Your account has been updated.', 'success')
-                return redirect(url_for('editAccount'))
-            except:
-                db.session.rollback()
-                flash('Your changes failed to save.', 'fail')
-        except:
-            flash('That email is already in use. Please try another.', 'fail')
-        return redirect(url_for('editAccount'))
+        # check if they changed anything
+        changeFlag = False
 
+        # Get username and email from form
+        newUsername = form.username.data
+        newEmail = form.email.data
+
+        # Check if we should change email
+        if newEmail != current_user.email:
+            try:
+                # Check email
+                form.validate_email(newEmail)
+                # set flag to commit database
+                changeFlag=True
+                # Change email
+                current_user.email=newEmail
+                # Tell user
+                flash('Email updated.', 'success')
+            # catch invalid email
+            except ValidationError:
+                # undo changes
+                db.session.rollback()
+                # Tell user
+                flash('That email is already in use. Please try another.', 'fail')
+
+        # Check if we should change user
+        if newUsername != current_user.username:
+            try:
+                # Check username
+                form.validate_username(newUsername)
+                # set flag to commit database
+                changeFlag=True
+                # Change email
+                current_user.username=newUsername
+                # Tell user
+                flash('Username updated.', 'success')
+            except ValidationError: 
+                # undo changes
+                db.session.rollback()
+                # Tell user
+                flash('That username is already in use. Please try another.', 'fail')
+        if changeFlag:
+            # save change
+            db.session.commit()  
+            # Send user back to menu
+            return redirect(url_for('settings'))
+            
+    # Get username and email to show in rendered form
     elif request.method == 'GET':
-        form.username.data = user.username
-        form.email.data = user.email
+        form.username.data = current_user.username
+        form.email.data = current_user.email
 
     return render_template('EditAccount.html', title='Edit Account', form=form)
 
