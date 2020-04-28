@@ -94,9 +94,9 @@ def displayAllItems():
     return render_template('DisplayAllitems.html', itemNameAndQuantityList=itemNameAndQuantityList)
 
 
-@app.route("/addItemManually", methods=['POST', 'GET'])
+@app.route("/addItemManually/<int:listId>", methods=['POST', 'GET'])
 @login_required
-def AddItemManually():
+def AddItemManually(listId):
     form = AddItemManuallyForm()
     itemName = form.itemName.data
     itemUPC = form.itemUPC.data
@@ -118,9 +118,18 @@ def AddItemManually():
             db.session.add(newContentEntry)
         else:
             testQuery.quantity += 1
-        db.session.commit()
-        flash('Your item added', 'success')
 
+        currentList = listId
+        contents = db.session.query(Item.name, Content.quantity, Content.list_id).join(Item).filter(
+            and_(Item.upc == Content.item_upc, Content.list_id == currentList))
+
+        try:
+            db.session.commit()
+            flash('Your item added', 'success')
+            return render_template('ListContents.html', contents=contents, listId = listId)
+        except:
+            flash('Your item failes to get added', 'fail')
+            return render_template('ListContents.html', contents=contents, listId = listId)
     return render_template('AddItemManually.html', title='New Item', form=form, legend='New Item')
 
 
@@ -132,10 +141,10 @@ def listContents(listId):
         and_(Item.upc == Content.item_upc, Content.list_id == currentList))
     for x in contents:
         print(x)
-    return render_template('ListContents.html', contents=contents)
+    return render_template('ListContents.html', contents=contents, listId = listId)
 
 
-@app.route("/listContents/delete/<int:listId>/<string:itemName>", methods=['POST', 'GET'])
+@app.route("/listContents/<int:listId>/delete/<string:itemName>", methods=['POST', 'GET'])
 @login_required
 def deleteItem(itemName, listId):
     print("itemName: ", itemName)
@@ -163,11 +172,11 @@ def deleteItem(itemName, listId):
         listContents.quantity = itemListQuantity
         print("listContents after: ", listContents)
         db.session.commit()
-        flash('Your item quantity been updated!', 'success')
+        flash('Your item quantity has been updated!', 'success')
     return redirect(url_for('listContents', listId=listId))
 
 
-@app.route("/listContents/add/<int:listId>/<string:itemName>", methods=['POST', 'GET'])
+@app.route("/listContents/<int:listId>/add/<string:itemName>", methods=['POST', 'GET'])
 @login_required
 def AddOneItem(itemName, listId):
     print("itemName: ", itemName)
@@ -362,8 +371,8 @@ def changePassword():
         flash('Passwords do not match.', 'warning')
     return render_template('changePassword.html', title='Change Password', form=form)
 
-@app.route("/apiTestCall", methods=['GET', 'POST'])
-def apiTestCall():
+@app.route("/recieveUpc", methods=['GET', 'POST'])
+def recieveUpc():
     if request.method == "GET":
         print("Flask Server recieved get request.")
     if request.method == "POST":

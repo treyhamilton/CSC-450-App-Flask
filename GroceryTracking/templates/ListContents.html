@@ -1,4 +1,7 @@
 {% extends "layout.html" %}
+{% block nav %}
+<a class="nav-item nav-link" href="{{ url_for('AddItemManually', listId = listId) }}">Add Item Manually</a>
+{% endblock nav %}
 {% block content %}
 
     <div class="text-center">
