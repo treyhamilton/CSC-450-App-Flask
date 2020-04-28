@@ -3,8 +3,10 @@ from sqlalchemy import func, and_
 from GroceryTracking import app, db, bcrypt
 from flask_login import login_user, current_user, logout_user, login_required
 from GroceryTracking.models import List, User, Item, Content
-from GroceryTracking.forms import LogInForm, RegistrationForm, EditAccountForm, AddListForm, DeleteListForm
-from GroceryTracking.helperFunctions import nextHighestUserId, getInformationOnUpc, addItemToDatabaseAndList, nextHighestListId
+from GroceryTracking.forms import LogInForm, RegistrationForm, EditAccountForm, AddListForm, DeleteListForm, RenameListForm,\
+    ChangePasswordForm, ValidationError
+from GroceryTracking.helperFunctions import nextHighestUserId, getInformationOnUpc, addItemToDatabaseAndList, \
+    nextHighestListId
 from GroceryTracking.testFunctions import recreateDatabaseBlank, recreateDatabaseTestFill
 
 @app.route("/")
@@ -39,7 +41,7 @@ def registerRoute():
 @app.route("/login", methods=['GET', 'POST'])
 def login():
     ##Tests by adding fake users, lists, items. Comment out and save for testing purposes after turning server on.
-    #recreateDatabaseTestFill()
+    # recreateDatabaseTestFill()
     if current_user.is_authenticated:
         return redirect(url_for('mainMenuRoute'))
     form = LogInForm()
@@ -75,6 +77,7 @@ def listContents(listId):
         print(x)
     return render_template('ListContents.html', contents=contents)
 
+
 @app.route("/settings")
 def settings():
     return render_template('Settings.html')
@@ -84,6 +87,7 @@ def settings():
 @login_required
 def listManagement():
     return render_template('listManagement.html')
+
 
 @app.route("/addList", methods=['GET', 'POST'])
 @login_required
@@ -101,6 +105,7 @@ def addList():
         flash('Your List has been created!', 'success')
         return redirect(url_for('userLists'))
     return render_template('addList.html', title='New List', form=form, legend='New List')
+
 
 @app.route("/deleteList", methods=['GET', 'POST'])
 @login_required
@@ -124,34 +129,90 @@ def deleteList():
             flash('There are no lists to delete.', 'success')
     return render_template('deleteList.html', title='Delete List', form=form, legend='Delete List')
 
+@app.route("/renameList", methods=['GET', 'POST'])
+@login_required
+def renameList():
+    form = RenameListForm()
+    form.addUsersListsToForm()
+    print(form.newList.data)
+
+    if request.method == 'POST':
+        listToRenameID = form.oldList.data
+        selectedListFromDatabase = List.query.filter_by(id=listToRenameID).first()
+        print(form.newList.data)
+        try:
+            selectedListFromDatabase.name = form.newList.data
+            db.session.commit()
+            flash('Your List has been updated.', 'success')
+            return redirect(url_for('userLists'))
+        except:
+            db.session.rollback()
+            flash('Your changes failed to save.', 'fail')
+            return redirect(url_for('userLists'))
+
+    return render_template('renameList.html', title='Rename List', form=form, legend='Rename List')
+
+
 @app.route("/settings/editAccount", methods=['GET', 'POST'])
 @login_required
 def editAccount():
-    user = User.query.filter_by(id=current_user.id).first()
-
+    # get form
     form = EditAccountForm()
     if request.method == 'POST':
-        user.username = form.username.data
-        user.email = form.email.data
-        try:
-            form.validate_email(user.email)
+        # check if they changed anything
+        changeFlag = False
+
+        # Get username and email from form
+        newUsername = form.username.data
+        newEmail = form.email.data
+
+        # Check if we should change email
+        if newEmail != current_user.email:
             try:
-                form.validate_email(user.email)
-                db.session.commit()
-                flash('Your account has been updated.', 'success')
-                return redirect(url_for('editAccount'))
-            except:
+                # Check email
+                form.validate_email(newEmail)
+                # set flag to commit database
+                changeFlag=True
+                # Change email
+                current_user.email=newEmail
+                # Tell user
+                flash('Email updated.', 'success')
+            # catch invalid email
+            except ValidationError:
+                # undo changes
                 db.session.rollback()
-                flash('Your changes failed to save.', 'fail')
-        except:
-            flash('That email is already in use. Please try another.', 'fail')
-        return redirect(url_for('editAccount'))
-    
+                # Tell user
+                flash('That email is already in use. Please try another.', 'fail')
+
+        # Check if we should change user
+        if newUsername != current_user.username:
+            try:
+                # Check username
+                form.validate_username(newUsername)
+                # set flag to commit database
+                changeFlag=True
+                # Change email
+                current_user.username=newUsername
+                # Tell user
+                flash('Username updated.', 'success')
+            except ValidationError: 
+                # undo changes
+                db.session.rollback()
+                # Tell user
+                flash('That username is already in use. Please try another.', 'fail')
+        if changeFlag:
+            # save change
+            db.session.commit()  
+            # Send user back to menu
+            return redirect(url_for('settings'))
+            
+    # Get username and email to show in rendered form
     elif request.method == 'GET':
-        form.username.data = user.username
-        form.email.data = user.email
-        
+        form.username.data = current_user.username
+        form.email.data = current_user.email
+
     return render_template('EditAccount.html', title='Edit Account', form=form)
+
 
 @app.route("/getItem", methods=['GET', 'POST'])
 @login_required
@@ -167,4 +228,25 @@ def getItem():
         flash('Failed to add item to list. Already exists in Database.', 'fail')
         return render_template('MainMenu.html')
 
-
+@app.route("/changePassword", methods=['GET', 'POST'])
+@login_required
+def changePassword():
+    form = ChangePasswordForm()
+    # Check form
+    if form.validate_on_submit():
+        # Check if the current password is correct
+        if bcrypt.check_password_hash(current_user.password, form.oldPassword.data):
+           # Hash the new password
+            newPassword = bcrypt.generate_password_hash(form.newPassword.data).decode('utf-8')
+            # Update the new password
+            current_user.password = newPassword
+            # Save changes
+            db.session.commit()
+            flash('Successfully changed password.', 'success')
+        else:
+            flash('Current password is not correct.', 'warning')
+    # check if user attempted to change password
+    elif "newPassword" in request.form:
+        flash('Passwords do not match.', 'warning')
+    return render_template('changePassword.html', title='Change Password', form=form)
+    

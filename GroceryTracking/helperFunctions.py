@@ -3,6 +3,7 @@ from sqlalchemy import func
 from GroceryTracking.models import User, List, Item, Content
 import requests, json
 
+
 def nextHighestUserId():
     maxUserId = db.session.query(func.max(User.id))
     maxId = maxUserId[0]
@@ -10,8 +11,9 @@ def nextHighestUserId():
     if maxId == None:
         nextMaxId = 1
     else:
-        nextMaxId = maxId+1
+        nextMaxId = maxId + 1
     return nextMaxId
+
 
 def nextHighestListId():
     maxListId = db.session.query(func.max(List.id))
@@ -20,20 +22,23 @@ def nextHighestListId():
     if maxId == None:
         nextMaxId = 1
     else:
-        nextMaxId = maxId+1
+        nextMaxId = maxId + 1
     return nextMaxId
+
 
 def getInformationOnUpc(upc):
     headers = {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
     }
-    resp = requests.get('https://api.upcitemdb.com/prod/trial/lookup?upc='+str(upc), headers=headers)
+    resp = requests.get('https://api.upcitemdb.com/prod/trial/lookup?upc=' + str(upc), headers=headers)
     data = json.loads(resp.text)
     for item in data['items']:
-        print("{}\t{}\t{}\t{}-{}".format(item['ean'], item['title'], item['brand'], item['lowest_recorded_price'], item['highest_recorded_price']))
-        return(item)
-        
+        print("{}\t{}\t{}\t{}-{}".format(item['ean'], item['title'], item['brand'], item['lowest_recorded_price'],
+                                         item['highest_recorded_price']))
+        return (item)
+
+
 def addItemToDatabaseAndList(item):
     itemUpc = str(item['ean'])
     print('itemUpc is' + itemUpc)
@@ -46,5 +51,4 @@ def addItemToDatabaseAndList(item):
         newItem = Item(upc=item['ean'], name=item['title'])
         db.session.add(newItem)
         db.session.commit()
-
 
