@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block content %}
-<div class="content-section">
+<div>
     <form method="POST" action="">
         {{ form.hidden_tag() }}
         <fieldset class="form-group">
@@ -12,8 +12,8 @@
             </div>
         </fieldset>
         <div class="form-group">
-            <a class="btn btn-danger" type="button" href="{{ url_for('listManagement') }}" style="width:40%"><font size="5">Back</font></a>
-            <button type="submit" class="btn btn-primary" style="width:40%"><font size="5">Delete</font></button>
+            <a class="btn btn-danger btn-block btn-lg" type="button" href="{{ url_for('listManagement') }}">Back</font></a>
+            <button type="submit" class="btn btn-primary btn-block btn-lg">Delete</button>
         </div>
     </form>
 </div>
