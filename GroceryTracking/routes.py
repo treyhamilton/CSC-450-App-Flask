@@ -361,4 +361,13 @@ def changePassword():
     elif "newPassword" in request.form:
         flash('Passwords do not match.', 'warning')
     return render_template('changePassword.html', title='Change Password', form=form)
-    
+
+@app.route("/apiTestCall", methods=['GET', 'POST'])
+def apiTestCall():
+    if request.method == "GET":
+        print("Flask Server recieved get request.")
+    if request.method == "POST":
+        inputData = request.form
+        print(inputData['itemUpc'])
+        print("Flask Server recieved post request.")
+    return str("Congrats. Your HTTP request succeeded")
