@@ -4,18 +4,16 @@
     <div class="text-center">
         <h1>List Management</h1>
         
-            <div class="form-group">
-                <a class="btn btn-primary btn-block btn-lg" type="button" href="{{ url_for('addList') }}">Add List</a>
-            </div>
-
-            <div class="form-group">
-                <a class="btn btn-primary btn-block btn-lg" type="button" href="{{ url_for('deleteList') }}">Delete List</a>
-            </div>
-
-            <div class="form-group">
-                <a class="btn btn-danger btn-block btn-lg" type="button" href="{{ url_for('renameList') }}">Rename List</a>
-            </div>
-
+         <div class="form-group">
+             <a class="btn btn-primary btn-block btn-lg" type="button" href="{{ url_for('addList') }}">Add List</a>
+         </div>
+         <div class="form-group">
+             <a class="btn btn-primary btn-block btn-lg" type="button" href="{{ url_for('deleteList') }}">Delete List</a>
+         </div>
+         <div class="form-group">
+             <a class="btn btn-primary btn-block btn-lg" type="button" href="{{ url_for('renameList') }}">Rename List</a>
+         </div>
     </div>
+
 
 {% endblock content %}
