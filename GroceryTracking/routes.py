@@ -41,7 +41,7 @@ def registerRoute():
 @app.route("/login", methods=['GET', 'POST'])
 def login():
     ##Tests by adding fake users, lists, items. Comment out and save for testing purposes after turning server on.
-    # recreateDatabaseTestFill()
+    #recreateDatabaseTestFill()
     if current_user.is_authenticated:
         return redirect(url_for('mainMenuRoute'))
     form = LogInForm()
@@ -371,12 +371,18 @@ def changePassword():
         flash('Passwords do not match.', 'warning')
     return render_template('changePassword.html', title='Change Password', form=form)
 
-@app.route("/recieveUpc", methods=['GET', 'POST'])
-def recieveUpc():
+@app.route("/getAndPostUpc", methods=['GET', 'POST'])
+def getAndPostUpc():
     if request.method == "GET":
         print("Flask Server recieved get request.")
     if request.method == "POST":
         inputData = request.form
         print(inputData['itemUpc'])
         print("Flask Server recieved post request.")
-    return str("Congrats. Your HTTP request succeeded")
+
+        #currentList = listId
+        #contents = db.session.query(Item.name, Content.quantity, Content.list_id).join(Item).filter(
+            #and_(Item.upc == Content.item_upc, Content.list_id == currentList))
+
+
+    return str("Post")

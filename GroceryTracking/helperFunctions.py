@@ -52,3 +52,4 @@ def addItemToDatabaseAndList(item):
         db.session.add(newItem)
         db.session.commit()
 
+

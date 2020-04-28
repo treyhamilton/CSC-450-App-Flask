@@ -14,12 +14,18 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(20), nullable=False)
     email = db.Column(db.String(40), nullable=False)
     password = db.Column(db.String(60), nullable=False)
+    lastListViewed = db.Column(db.Integer, nullable=True)
 
     lists = db.relationship("List", backref="user")
 
     def __repr__(self):
         return f'User(id:{self.id}, first_name:{self.first_name}, username:{self.username}, email:{self.email}, password:{self.password})'
 
+    def getlastListViewed():
+        return lastListViewed
+
+    def setLastListViewed(listId):
+        lastListViewed = listId
 
 class List(db.Model):
     __tablename__ = "list"
@@ -33,7 +39,6 @@ class List(db.Model):
     def __repr__(self):
         return f'List(id:{self.id}, user_id:{self.user_id}, name:{self.name}, size:{self.size})'
 
-
 class Content(db.Model):
     __tablename__ = "content"
     item_upc = db.Column(db.Integer, db.ForeignKey("item.upc"), primary_key=True, nullable=False)
@@ -42,7 +47,6 @@ class Content(db.Model):
 
     def __repr__(self):
         return f'Content(item_upc:{self.item_upc}, list_id:{self.list_id}, quantity:{self.quantity})'
-
 
 class Item(db.Model):
     __tablename__ = "item"
