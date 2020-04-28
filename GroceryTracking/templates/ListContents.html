@@ -13,8 +13,8 @@
             List's Contents
         </h1>
         <div class="btn-group" role="group" aria-label="Basic example">
-            <a class="btn btn-primary btn-sm" type="button" href="{{ url_for('mainMenuRoute') }}" methods=["POST","GET"]>Scan Add</a>
-            <a class="btn btn-success btn-sm" type="button" href="{{ url_for('mainMenuRoute')}}" methods=["POST","GET"]>Scan Delete</a>
+            <a class="btn btn-primary btn-sm" type="button" href="{{ url_for('getAndPostUpc') }}" methods=["POST","GET"]>Scan Add</a>
+            <a class="btn btn-success btn-sm" type="button" href="{{ url_for('getAndPostUpc')}}" methods=["POST","GET"]>Scan Delete</a>
         </div>
         <span class="d-block p-3 bg-dark text-white"></span>
         {% for item in contents %}
