@@ -1,6 +1,5 @@
 {% extends "layout.html" %}
 {% block content %}
-<div class="content-section">
     <form method="POST" action="">
         {{ form.hidden_tag() }}
         <fieldset class="form-group">
@@ -59,8 +58,11 @@
             </div>
         </fieldset>
         <div class="form-group">
-            {{ form.submit(class="btn btn-outline-info") }}
+            {{ form.submit(class="btn btn-info") }}
         </div>
     </form>
-</div>
+
 {% endblock content %}
+{% block back %}
+    <a class="btn btn-outline-dark btn-sm" href="{{ url_for('userLists') }}">Go back</a>
+{% endblock back %}

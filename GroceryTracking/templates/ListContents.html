@@ -16,7 +16,7 @@
             <a class="btn btn-primary btn-sm" type="button" href="{{ url_for('getAndPostUpc') }}" methods=["POST","GET"]>Scan Add</a>
             <a class="btn btn-success btn-sm" type="button" href="{{ url_for('getAndPostUpc')}}" methods=["POST","GET"]>Scan Delete</a>
         </div>
-        <span class="d-block p-3 bg-dark text-white"></span>
+        <span class="d-block p-1 bg-dark text-white mt-1 mb-1"></span>
         {% for item in contents %}
                 <div class="form-group">
                 <div class="btn-group" role="group" aria-label="Basic example">
@@ -32,3 +32,6 @@
 
 
 {% endblock content %}
+{% block back %}
+    <a class="btn btn-outline-dark btn-sm" href="{{ url_for('userLists') }}">Go back</a>
+{% endblock back %}
