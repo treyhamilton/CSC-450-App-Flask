@@ -83,3 +83,7 @@ class AddItemManuallyForm(FlaskForm):
     itemQuantity = IntegerField("Number of items", validators=[optional()])
     ListName = StringField("Name of List:", validators=[DataRequired()])
     submit = SubmitField("Submit")
+
+class lookupUPC(FlaskForm):
+    upc = StringField("UPC Number", validators = [DataRequired()])
+    submit = SubmitField("Look up")

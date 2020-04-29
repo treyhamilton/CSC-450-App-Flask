@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+{% block content %}
+    <div class="text-center">
+        <form method="POST" action="lookupupc">
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">Look up a UPC</legend>
+                <div class="form-group">
+                    {{ form.upc.label(class="form-control-label") }}
+                    {% if form.upc.errors %}
+                        {{ form.upc(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.upc.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.upc(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+
+            </fieldset>
+            <div class="form-group">
+                {{ form.submit(class="btn btn-primary") }}
+            </div>
+        </form>
+    </div>
+
+{% endblock content %}
+{% block back %}
+    <a class="btn btn-outline-dark btn-sm" href="{{ url_for('mainMenuRoute') }}">Go back</a>
+{% endblock back %}

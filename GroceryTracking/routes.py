@@ -4,7 +4,7 @@ from GroceryTracking import app, db, bcrypt
 from flask_login import login_user, current_user, logout_user, login_required
 from GroceryTracking.models import List, User, Item, Content
 from GroceryTracking.forms import LogInForm, RegistrationForm, EditAccountForm, AddListForm, DeleteListForm, RenameListForm,\
-    ChangePasswordForm, ValidationError, AddItemManuallyForm
+    ChangePasswordForm, ValidationError, AddItemManuallyForm, lookupUPC
 from GroceryTracking.helperFunctions import nextHighestUserId, getInformationOnUpc, addItemToDatabaseAndList, \
     nextHighestListId
 from GroceryTracking.testFunctions import recreateDatabaseBlank, recreateDatabaseTestFill
@@ -386,3 +386,16 @@ def getAndPostUpc():
 
 
     return str("Post")
+
+@app.route("/lookupupc", methods=['GET', 'POST'])
+@login_required
+def lookUpUpc():
+    form = lookupUPC()
+    print(form.validate_on_submit())
+    try:
+         #  user@user.com
+        flash(getInformationOnUpc(form.upc.data),'success')
+    except Exception as e:
+        print(e)
+    return render_template('lookUpUpc.html', title='Look Up UPC', form=form)
+
